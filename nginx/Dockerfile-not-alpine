@@ -1,13 +1,19 @@
 FROM nginx:1.19 AS builder
 
-# 下載 nginx 以及 module
-RUN curl "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.gz && \
-    curl -L "https://github.com/openresty/headers-more-nginx-module/archive/v0.33.tar.gz" -o headers-more-nginx-module.tar.gz
+# 時區設定 debian
+RUN TZ=Asia/Taipei && \
+    DEBIAN_FRONTEND=noninteractive && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    apt-get update -y && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends tzdata
 
 # 安裝軟體
-RUN apt-get update -y && \
-    apt-get install -y gcc libc-dev make openssl libpcre3 libpcre3-dev \
-    unzip curl gnupg libxslt-dev libgd-dev libgeoip-dev
+RUN apt-get install -y gcc libc-dev make openssl libpcre3 libpcre3-dev \
+    unzip curl gnupg libxslt-dev libgd-dev libgeoip-dev && \
+    # 下載 nginx 以及 module
+    curl "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.gz && \
+    curl -L "https://github.com/openresty/headers-more-nginx-module/archive/v0.33.tar.gz" -o headers-more-nginx-module.tar.gz
 
 # 安裝 nginx 以及 module
 RUN mkdir -p /usr/src && \
@@ -25,10 +31,18 @@ FROM nginx:1.19
 # 複製編譯好的模組
 COPY --from=builder /ngx_http_headers_more_filter_module.so /usr/local/nginx/modules/ngx_http_headers_more_filter_module.so
 
-# 設定檔資料夾
-RUN mkdir -p /etc/nginx/alias
-RUN chmod -R 777 /etc/nginx/alias
-VOLUME /etc/nginx/alias
+# 時區設定 debian
+RUN TZ=Asia/Taipei && \
+    DEBIAN_FRONTEND=noninteractive && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    apt-get update -y && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends tzdata
+
+# 設定 html 料夾
+RUN mkdir -p /var/www/html
+RUN chmod -R 777 /var/www/html
+VOLUME /var/www/html
 
 # log 檔資料夾
 RUN chmod -R 777 /var/log/nginx

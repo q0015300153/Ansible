@@ -11,11 +11,11 @@ if ($uri !~ "^/blank/(.*)$") {
 }
 
 if ($weblink = "012") {
-    rewrite ^(?i)/blank/(.*)$ "/blank/$i" redirect;
+    rewrite ^(?i)/blank/(.*)$ "/blank/$1" redirect;
 }
 
 location ^~ /blank {
-    alias $html/i0_blank/public;
+    alias $html/blank/public;
     location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|css|xls|xlsx|xlsm)$ {
 
     }
@@ -24,6 +24,9 @@ location ^~ /blank {
     index   index.php;
     location ~* \.php {
         try_files $uri $uri/ /index.php$is_args$query_string;
+
+        fastcgi_param           APP_ENV   "${NGINX_APP_ENV}A";
+        fastcgi_param           APP_DEBUG "${NGINX_APP_DEBUG}B";
 
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass            phpfastcgi_proxy;

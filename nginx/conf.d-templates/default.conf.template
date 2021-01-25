@@ -1,0 +1,56 @@
+upstream phpfastcgi_proxy {
+    server php-1:9000;
+}
+
+server {
+    set $html "${NGINX_WEB_PATH}";
+
+    listen       80 default_server;
+    listen  [::]:80 default_server;
+
+    #listen      443 ssl default_server;
+    #listen [::]:443 ssl default_server;
+    #ssl_certificate     /etc/nginx/ssl/nginx.crt;
+    #ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    server_name ${NGINX_APP_NAME};
+    root        $html;
+    index       index.php index.html;
+
+    location /nginx_status {
+        stub_status on;
+        access_log  off;
+        allow       127.0.0.1;
+        deny        all;
+    }
+
+    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$ {
+        expires 30d;
+    }
+
+    location ~ .*\.(js|css)$ {
+        expires 12h;
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+
+    location / {
+        fastcgi_param            APP_ENV   "${NGINX_APP_ENV}";
+        fastcgi_param            APP_DEBUG "${NGINX_APP_DEBUG}";
+
+        fastcgi_split_path_info  ^(.+\.php)(/.+)$;
+        fastcgi_pass             phpfastcgi_proxy;
+        fastcgi_index            index.php;
+        fastcgi_param            SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param            PATH_INFO       $fastcgi_path_info;
+        fastcgi_keep_conn        on;
+        fastcgi_buffers          8 4K;
+        fastcgi_buffer_size      4K;
+        client_body_buffer_size  1024K;
+        include                  /etc/nginx/fastcgi_params;
+    }
+
+    include /etc/nginx/conf.d/alias/*.conf;
+}

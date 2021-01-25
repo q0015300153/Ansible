@@ -1,0 +1,14 @@
+FROM ubuntu:21.04
+
+# 時區設定 ubuntu
+RUN TZ=Asia/Taipei && \
+	DEBIAN_FRONTEND=noninteractive && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    apt-get update -y && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends tzdata
+
+# 安裝 ansible
+RUN apt-get install -y software-properties-common && \
+	apt-add-repository --yes --update ppa:ansible/ansible-2.10 && \
+	apt-get install -y ansible

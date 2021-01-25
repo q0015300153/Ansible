@@ -6,14 +6,13 @@ services:
     restart: on-failure
     stdin_open: true
     tty: true
-
   ansible:
     <<: *basic
     container_name: ansible
     build:
       context: ./ansible/
       dockerfile: Dockerfile
-    image: ansible:v2.9
+    image: ansible:v2.10
     volumes:
       - ./ansible/conf:/etc/ansible
       - type: bind
@@ -21,8 +20,7 @@ services:
         target: /var/log/ansible.log
     networks:
       - default-network
-
-  php-1:
+  php-1: &basic-php
     <<: *basic
     container_name: php-1
     build:
@@ -33,10 +31,9 @@ services:
       - type: bind
         source: ${PHP_INI:?err}
         target: /usr/local/etc/php/php.ini
-      - web-site:/var/www/html
+      - web-site:${CONTAINER_WEB_PATH:?err}
     networks:
       - default-network
-
   nginx-1:
     <<: *basic
     container_name: nginx-1
@@ -49,21 +46,18 @@ services:
       - 443:443
     depends_on:
       - php-1
-    environment:
-      - NGINX_APP_NAME=${APP_NAME:?err}
-      - NGINX_APP_ENV=${NGINX_APP_ENV:?err}
-      - NGINX_APP_DEBUG=${NGINX_APP_DEBUG:?err}
     volumes:
       - type: bind
         source: ./nginx/conf/nginx.conf
         target: /etc/nginx/nginx.conf
-      - type: bind
-        source: ./nginx/conf/fastcgi_params
-        target: /etc/nginx/fastcgi_params
-      - ./nginx/conf/conf.d:/etc/nginx/conf.d
+      - ./nginx/conf.d-templates:/etc/nginx/templates
       - ./nginx/log:/var/log/nginx
-      - ./nginx/alias:/etc/nginx/alias
-      - web-site:/usr/share/nginx/html
+      - web-site:${CONTAINER_WEB_PATH:?err}
+    environment:
+      - NGINX_APP_NAME=${APP_NAME:?err}
+      - NGINX_WEB_PATH=${CONTAINER_WEB_PATH:?err}
+      - NGINX_APP_ENV=${NGINX_APP_ENV:?err}
+      - NGINX_APP_DEBUG=${NGINX_APP_DEBUG:?err}
     networks:
       - default-network
 

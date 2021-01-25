@@ -1,16 +1,11 @@
-FROM ubuntu:21.04
+FROM alpine:3.13
 
-# 時區設定
-RUN apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
-
+# 時區設定 alpine
 RUN TZ=Asia/Taipei && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone && \
-    dpkg-reconfigure -f noninteractive tzdata
+    apk update && apk upgrade && \
+    apk add --no-cache tzdata
 
 # 安裝 ansible
-RUN apt-get update -y && \
-	apt-get install -y software-properties-common && \
-	apt-add-repository --yes --update ppa:ansible/ansible-2.9 && \
-	apt-get install -y ansible
+RUN apk add ansible=2.10.5-r0
