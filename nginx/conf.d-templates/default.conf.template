@@ -53,5 +53,5 @@ server {
         include                  /etc/nginx/fastcgi_params;
     }
 
-    include /etc/nginx/conf.d/alias/*.conf;
+    include /etc/nginx/conf.d/alias/site-*.conf;
 }

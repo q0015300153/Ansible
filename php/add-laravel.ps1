@@ -112,13 +112,13 @@ foreach ($php in $phpService) {
 foreach ($nginx in $nginxService) {
 	# tw: 複製設定檔模板
 	# en: Copy profile template
-	docker exec $nginx cp $nginxTempAlias/default.conf.demo $nginxTempAlias/$projectName.conf.template
+	docker exec $nginx cp $nginxTempAlias/default.conf.template $nginxTempAlias/$projectName.conf.template
 
 	# tw: 複製設定檔
 	# en: Copy profile
-	docker exec $nginx cp $nginxAlias/default.conf $nginxAlias/$projectName.conf
-	docker exec $nginx sed -i "s#\$name#$projectName#g" $nginxAlias/$projectName.conf
-	docker exec $nginx chmod 777 $nginxAlias/$projectName.conf
+	docker exec $nginx cp $nginxAlias/default.conf $nginxAlias/site-$projectName.conf
+	docker exec $nginx sed -i "s#\$name#$projectName#g" $nginxAlias/site-$projectName.conf
+	docker exec $nginx chmod 755 $nginxAlias/site-$projectName.conf
 	docker exec $nginx nginx -s reload
 	break
 }
