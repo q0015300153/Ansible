@@ -1,26 +1,26 @@
-# 空白專案 - blank
+# 專案模板 - default
 
 set $weblink 0;
 
-if ($uri ~ ^(?i)/blank/(.*)$) {
+if ($uri ~ ^(?i)/$name/(.*)$) {
     set $weblink "${weblink}1";
 }
 
-if ($uri !~ "^/blank/(.*)$") {
+if ($uri !~ "^/$name/(.*)$") {
     set $weblink "${weblink}2";
 }
 
 if ($weblink = "012") {
-    rewrite ^(?i)/blank/(.*)$ "/blank/$1" redirect;
+    rewrite ^(?i)/$name/(.*)$ "/$name/$1" redirect;
 }
 
-location ^~ /blank {
-    alias $html/blank/public;
+location ^~ /$name {
+    alias $html/$name/public;
     location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|js|css|xls|xlsx|xlsm)$ {
 
     }
 
-    rewrite ^/blank/(.*)$ /blank/index.php?$1 last;
+    rewrite ^/$name/(.*)$ /$name/index.php?$1 last;
     index   index.php;
     location ~* \.php {
         try_files $uri $uri/ /index.php$is_args$query_string;

@@ -41,11 +41,15 @@ RUN TZ=Asia/Taipei && \
 
 # 設定 html 料夾
 RUN mkdir -p /var/www/html
-RUN chmod -R 777 /var/www/html
+RUN chmod -R 755 /var/www/html
 VOLUME /var/www/html
 
+# 設定 alias 料夾
+RUN mkdir -p /etc/nginx/conf.d/alias
+RUN chmod -R 755 /etc/nginx/conf.d/alias
+
 # log 檔資料夾
-RUN chmod -R 777 /var/log/nginx
+RUN chmod -R 755 /var/log/nginx
 VOLUME /var/log/nginx
 
 # 啟動 nginx
