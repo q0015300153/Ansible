@@ -37,6 +37,12 @@ services:
   php-2:
     <<: *basic-php
     container_name: php-2
+  php-3:
+    <<: *basic-php
+    container_name: php-3
+  php-4:
+    <<: *basic-php
+    container_name: php-4
   nginx-1:
     <<: *basic
     container_name: nginx-1
