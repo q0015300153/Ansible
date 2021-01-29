@@ -8,4 +8,4 @@ RUN TZ=Asia/Taipei && \
     apk add --no-cache tzdata
 
 # 安裝 ansible
-RUN apk add ansible=2.10.5-r0
+RUN apk add --no-cache ansible~=2.10

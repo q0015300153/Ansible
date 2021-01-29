@@ -1,5 +1,6 @@
 upstream phpfastcgi_proxy {
     server php-1:9000;
+    server php-2:9000;
 }
 
 server {
