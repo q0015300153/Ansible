@@ -15,9 +15,7 @@ services:
     image: ansible:v2.10
     volumes:
       - ./ansible/conf:/etc/ansible
-      - type: bind
-        source: ./ansible/log/ansible.log
-        target: /var/log/ansible.log
+      - ./ansible/log:/var/log
     networks:
       - default-network
   php-1: &basic-php
@@ -43,9 +41,9 @@ services:
   php-4:
     <<: *basic-php
     container_name: php-4
-  nginx-1:
+  nginx:
     <<: *basic
-    container_name: nginx-1
+    container_name: nginx
     build:
       context: ./nginx/
       dockerfile: Dockerfile
@@ -56,10 +54,13 @@ services:
     depends_on:
       - php-1
       - php-2
+      - php-3
+      - php-4
     volumes:
       - type: bind
         source: ./nginx/conf/nginx.conf
         target: /etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/conf.d-templates:/etc/nginx/templates
       - ./nginx/log:/var/log/nginx
       - web-site:${CONTAINER_WEB_PATH:?err}

@@ -81,19 +81,19 @@ foreach ($php in $phpService) {
 	# tw: 設定 Laravel 資料夾權限
 	# en: Set Laravel folder permissions
 	if ($(docker exec $php ls -a $wwwPath/$projectName/artisan) -eq "$wwwPath/$projectName/artisan") {
-		docker exec $php bash -c "chmod -R 757 $wwwPath/$projectName"
-		docker exec $php bash -c "cd $wwwPath/$projectName && chown -R \$USER:www-data storage"
-		docker exec $php bash -c "cd $wwwPath/$projectName && chown -R \$USER:www-data bootstrap/cache"
-		docker exec $php bash -c "cd $wwwPath/$projectName && chmod -R 775 storage"
-		docker exec $php bash -c "cd $wwwPath/$projectName && chmod -R 775 bootstrap/cache"
-
 		# tw: 如果是透過 git clone 下載，重新建立專案
 		# en: If you download via git clone, re-create the project.
 		if ($isGitClone) {
-			docker exec $php bash -c "cd $wwwPath/$projectName && composer install"
-			docker exec $php bash -c "cd $wwwPath/$projectName && cp .env.example .env"
-			docker exec $php bash -c "cd $wwwPath/$projectName && php artisan key:generate"
+			docker exec $php /bin/sh -c "cd $wwwPath/$projectName && composer install"
+			docker exec $php /bin/sh -c "cd $wwwPath/$projectName && cp .env.example .env"
+			docker exec $php /bin/sh -c "cd $wwwPath/$projectName && php artisan key:generate"
 		}
+
+		docker exec $php chmod -R 757 $wwwPath/$projectName
+		docker exec $php chown -R "root.www-data" $wwwPath/$projectName/storage
+		docker exec $php chown -R "root.www-data" $wwwPath/$projectName/bootstrap/cache
+		docker exec $php chmod -R 775 $wwwPath/$projectName/storage
+		docker exec $php chmod -R 775 $wwwPath/$projectName/bootstrap/cache
 	}
 
 	# tw: 判斷有沒有成功建立專案
@@ -108,16 +108,14 @@ foreach ($php in $phpService) {
 
 # tw: 建立 nginx web 站點設定檔
 # en: Create an nginx web site profile
-
 foreach ($nginx in $nginxService) {
 	# tw: 複製設定檔模板
 	# en: Copy profile template
-	docker exec $nginx cp $nginxTempAlias/default.conf.template $nginxTempAlias/$projectName.conf.template
-
+	docker exec $nginx cp $nginxTempAlias/default.conf.template $nginxTempAlias/site-$projectName.conf.template
 	# tw: 複製設定檔
 	# en: Copy profile
 	docker exec $nginx cp $nginxAlias/default.conf $nginxAlias/site-$projectName.conf
-	docker exec $nginx sed -i "s#\$name#$projectName#g" $nginxAlias/site-$projectName.conf
+	docker exec $nginx sed -i "s/`$name/$projectName/g" $nginxAlias/site-$projectName.conf
 	docker exec $nginx chmod 755 $nginxAlias/site-$projectName.conf
 	docker exec $nginx nginx -s reload
 	break
