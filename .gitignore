@@ -3,3 +3,4 @@ nginx/conf.d-templates/alias/*
 !nginx/conf.d-templates/alias/default.*
 html/*
 !html/index.php
+nginx/conf.d/*
